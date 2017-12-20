@@ -107,13 +107,17 @@ fileNames = []
 avg = np.array([37,37,37])
 
 ## Gallery Path
-sGalPath = './3DFace/gallery'
+sGalPath = './3DFace/Gallery'
 
 
 dirs = [f for f in listdir(sGalPath) if isfile(join(sGalPath, f)) and (f.endswith(sTarget))]
 N_id = len(dirs)
+kp=[]
+kg=[]
+print "galleryIndices"
 for i, n in enumerate(dirs):
-
+    kg.append(n)
+    print n
     Y_temp = np.zeros(N_id)
     Y_temp[i] = 1
     X_temp = np.load(sGalPath + '/'+ n)
@@ -128,12 +132,15 @@ for i, n in enumerate(dirs):
 
 
 ## Probe Path
-sProbPath = './3DFace/probe'
+sProbPath = './3DFace/Probe'
 dirs = [f for f in listdir(sProbPath) if isfile(join(sProbPath, f)) and (f.endswith(sTarget))]
 
 N_id = len(dirs)
+print "probeIndices"
 
 for i, n in enumerate(dirs):
+    kp.append(n)
+    print n
     Y_temp = np.zeros(N_id)
     Y_temp[i] = 1
     X_temp = np.load(sProbPath + '/' + n)
@@ -161,13 +168,29 @@ sProbLabel = sProbLabel[1]
 
 [results, label, min, max_similarities, similarities, similaritiesMatrix] = getIdentificationAccuracy(net, X_Gallery, sGallerylabel, X_Probe, sProbLabel)
 
+print similaritiesMatrix
 
-print("rank-1 acc: ", results)
+print "Matched files"
+for i in range(0, len(kp)):
+    print ("probing for--> "+str(kp[i]))
+    t= similaritiesMatrix[i]
+    for j in range(0, len(t)):
+        print str(kg[j]+"-->"+str(t[j])) 
+    ind = np.argmax(t)
+    max_t = np.max(t)
+    print ("matched file-->"+str(kg[ind]))
+    
+    if max_t>0.9:
+        print "Match is found in Database"
+
+#print("rank-1 acc: ", results)
 
 
-for i in range(0, len(fileNames)):
-    print(fileNames[i], 'Probe Label:', sGallerylabel[i], 'Matched Label:',
-          min[i], ' max similarity: ', max_similarities[i], 'ref similarity: ', similarities[i])
+#for i in range(0, len(fileNames)):
+#    print(fileNames[i], 'Probe Label:', sProbLabel[i], 'Matched Label:',
+#          min[i], ' max similarity: ', max_similarities[i], 'ref similarity: ', similarities[i])
+    #print kg[sGallerylabel[i]]
+    #print kg[min[i]]
     print ('\n')
 
 
